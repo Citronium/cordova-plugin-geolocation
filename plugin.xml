@@ -48,6 +48,8 @@
 
         <source-file src="src/android/Geolocation.java"
             target-dir="src/org/apache/cordova/geolocation/" />
+        <source-file src="src/android/LocationResult.java"
+            target-dir="src/org/apache/cordova/geolocation/" />
 
         <js-module name="geolocation" src="www/android/geolocation.js">
             <clobbers target="navigator.geolocation" />
