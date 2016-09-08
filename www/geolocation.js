@@ -118,25 +118,23 @@ var geolocation = {
             }
         };
 
-        exec(successCallback, errorCallback, "Geolocation", "getCurrentPosition", []);
+        if (geolocation.lastPosition && options.maximumAge && (((new Date()).getTime() - geolocation.lastPosition.timestamp) <= options.maximumAge)) {
+            successCallback(geolocation.lastPosition);
+            exec(successCallback, errorCallback, "Geolocation", "getCurrentPosition", []);
+        } else if (options.timeout === 0) {
+            fail({
+                code:PositionError.TIMEOUT,
+                message:"timeout value in PositionOptions set to 0 and no cached Position object available, or cached Position object's age exceeds provided PositionOptions' maximumAge parameter."
+            });
 
-//        if (geolocation.lastPosition && options.maximumAge && (((new Date()).getTime() - geolocation.lastPosition.timestamp) <= options.maximumAge)) {
-//            successCallback(geolocation.lastPosition);
-//            exec(successCallback, errorCallback, "Geolocation", "getCurrentPosition", []);
-//        } else if (options.timeout === 0) {
-//            fail({
-//                code:PositionError.TIMEOUT,
-//                message:"timeout value in PositionOptions set to 0 and no cached Position object available, or cached Position object's age exceeds provided PositionOptions' maximumAge parameter."
-//            });
-//
-//        } else {
-//            if (options.timeout !== Infinity) {
-//                timeoutTimer.timer = createTimeout(fail, options.timeout);
-//            } else {
-//                timeoutTimer.timer = true;
-//            }
-//            exec(win, fail, "Geolocation", "getLocation", [options.enableHighAccuracy, options.maximumAge]);
-//        }
+        } else {
+            if (options.timeout !== Infinity) {
+                timeoutTimer.timer = createTimeout(fail, options.timeout);
+            } else {
+                timeoutTimer.timer = true;
+            }
+            exec(win, fail, "Geolocation", "getLocation", [options.enableHighAccuracy, options.maximumAge]);
+        }
         return timeoutTimer;
     },
     /**
