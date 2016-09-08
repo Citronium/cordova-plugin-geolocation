@@ -70,5 +70,3 @@ module.exports = {
         exec(win, null, "Geolocation", "getPermission", []);
     }
 };
-
-});
