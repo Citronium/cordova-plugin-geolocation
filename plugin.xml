@@ -42,6 +42,7 @@
         <config-file parent="/*" target="res/xml/config.xml">
             <feature name="Geolocation">
                 <param name="android-package" value="org.apache.cordova.geolocation.Geolocation" />
+                <param name="android-package" value="org.apache.cordova.geolocation.LocationResult" />
             </feature>
         </config-file>
 
