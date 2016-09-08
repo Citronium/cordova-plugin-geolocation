@@ -102,6 +102,17 @@ public class Geolocation extends CordovaPlugin {
         PermissionHelper.requestPermissions(this, requestCode, permissions);
     }
 
+    /**
+     * 
+     * @param mContext
+     * @return
+     */
+    public boolean isGPSEnabled (Context mContext){
+        LocationManager locationManager = (LocationManager)
+                mContext.getSystemService(Context.LOCATION_SERVICE);
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
+
 
 
 }
