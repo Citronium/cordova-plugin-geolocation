@@ -47,7 +47,17 @@ module.exports = {
                 longitude: coords.lon
                 }
             });
-        }, error, "Geolocation", "getCurrentPosition", []);
+        }, function(error) {
+                       if (error) {
+                           console.log(error);
+
+                           if (error === 2) {
+                             error(new PositionError (2, 'GPS disabled'));
+                           }
+
+                           error(new PositionError (PositionError.PERMISSION_DENIED, 'Illegal Access'));
+                       },
+                       "Geolocation", "getCurrentPosition", []);
     },
 
     watchPosition: function(success, error, args) {

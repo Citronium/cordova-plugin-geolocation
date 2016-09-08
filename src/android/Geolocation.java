@@ -107,7 +107,7 @@ public class Geolocation extends CordovaPlugin {
                             10, mLocationListener);
 
                 } else {
-                    PluginResult r = new PluginResult(PluginResult.Status.CLASS_NOT_FOUND_EXCEPTION, "Location on device disabled");
+                    PluginResult r = new PluginResult(PluginResult.Status.CLASS_NOT_FOUND_EXCEPTION, 2);
                     context.sendPluginResult(r);
                 }
 
