@@ -45,23 +45,22 @@ public class Geolocation extends CordovaPlugin {
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         LOG.d(TAG, "We are entering execute");
         context = callbackContext;
-        if(action.equals("getPermission"))
-        {
-            if(hasPermisssion())
-            {
+        if (action.equals("getPermission")) {
+            if (hasPermisssion()) {
                 PluginResult r = new PluginResult(PluginResult.Status.OK);
                 context.sendPluginResult(r);
                 return true;
-            }
-            else {
+            } else {
                 PermissionHelper.requestPermissions(this, 0, permissions);
             }
             return true;
-        }else if (action.equals("getCurrentPosition")) {
+        } else if (action.equals("getCurrentPosition")) {
             if (hasPermisssion()) {
                 if (isGPSEnabled() || isNetworkPositionEnabled()) {
 
-                    final LocationManager mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+                    Context geoContext = this.cordova.getActivity().getApplicationContext();
+
+                    final LocationManager[] mLocationManager = {(LocationManager) geoContext.getSystemService(Context.LOCATION_SERVICE)};
 
                     final LocationListener mLocationListener = new LocationListener() {
 
@@ -71,8 +70,11 @@ public class Geolocation extends CordovaPlugin {
                             LocationResult locationResult = new LocationResult(location.getLatitude(), location.getLongitude());
                             PluginResult r = new PluginResult(PluginResult.Status.OK, "" + locationResult.toJson());
 
-                            mLocManager.removeUpdates(mLocationListener);
-                            mLocManager = null;
+                            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+                            }
+                            mLocationManager[0].removeUpdates(this);
+                            mLocationManager[0] = null;
 
                             context.sendPluginResult(r);
                         }
@@ -93,7 +95,7 @@ public class Geolocation extends CordovaPlugin {
                         }
                     };
 
-                    Context context = this.cordova.getActivity().getApplicationContext();
+
 
                     if (
                             checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
@@ -101,11 +103,11 @@ public class Geolocation extends CordovaPlugin {
                         PermissionHelper.requestPermissions(this, 0, permissions);
                     }
 
-                    mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60,
+                    mLocationManager[0].requestLocationUpdates(LocationManager.GPS_PROVIDER, 60,
                             10, mLocationListener);
 
                 } else {
-                    PluginResult r = new PluginResult(PluginResult.Status.CLASS_NOT_FOUND_EXCEPTION);
+                    PluginResult r = new PluginResult(PluginResult.Status.CLASS_NOT_FOUND_EXCEPTION, "Location on device disabled");
                     context.sendPluginResult(r);
                 }
 
