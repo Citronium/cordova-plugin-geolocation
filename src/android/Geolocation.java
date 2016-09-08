@@ -18,27 +18,28 @@
 
 package org.apache.cordova.geolocation;
 
-import android.content.pm.PackageManager;
 import android.Manifest;
-import android.os.Build;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
 
 import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaArgs;
 import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.LOG;
 import org.apache.cordova.PermissionHelper;
 import org.apache.cordova.PluginResult;
-import org.apache.cordova.LOG;
 import org.json.JSONArray;
 import org.json.JSONException;
-
-import javax.security.auth.callback.Callback;
 
 public class Geolocation extends CordovaPlugin {
 
     String TAG = "GeolocationPlugin";
     CallbackContext context;
 
-    String [] permissions = { Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION };
+    String[] permissions = {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
 
 
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
@@ -56,17 +57,65 @@ public class Geolocation extends CordovaPlugin {
                 PermissionHelper.requestPermissions(this, 0, permissions);
             }
             return true;
+        }else if (action.equals("getCurrentPosition")) {
+            if (hasPermisssion()) {
+                if (isGPSEnabled() || isNetworkPositionEnabled()) {
+                    final LocationListener mLocationListener = new LocationListener() {
+
+                        @Override
+                        public void onLocationChanged(Location location) {
+                            LOG.d(TAG, "We are entering execute");
+                            LocationResult locationResult = new LocationResult(location.getLatitude(), location.getLongitude());
+                            PluginResult r = new PluginResult(PluginResult.Status.OK, "" + locationResult.toJson());
+                            context.sendPluginResult(r);
+                        }
+
+                        @Override
+                        public void onStatusChanged(String provider, int status, Bundle extras) {
+                            LOG.d(TAG, "onStatusChanged");
+                        }
+
+                        @Override
+                        public void onProviderEnabled(String provider) {
+                            LOG.d(TAG, "onProviderEnabled");
+                        }
+
+                        @Override
+                        public void onProviderDisabled(String provider) {
+                            LOG.d(TAG, "onProviderDisabled");
+                        }
+                    };
+
+                    Context context = this.cordova.getActivity().getApplicationContext();
+                    final LocationManager mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+                    if (
+                            checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                                    && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        PermissionHelper.requestPermissions(this, 0, permissions);
+                    }
+
+                    mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60,
+                            10, mLocationListener);
+
+                } else {
+                    PluginResult r = new PluginResult(PluginResult.Status.CLASS_NOT_FOUND_EXCEPTION);
+                    context.sendPluginResult(r);
+                }
+
+            } else {
+                PermissionHelper.requestPermissions(this, 0, permissions);
+            }
+            return true;
         }
         return false;
     }
 
 
     public void onRequestPermissionResult(int requestCode, String[] permissions,
-                                          int[] grantResults) throws JSONException
-    {
+                                          int[] grantResults) throws JSONException {
         PluginResult result;
         //This is important if we're using Cordova without using Cordova, but we have the geolocation plugin installed
-        if(context != null) {
+        if (context != null) {
             for (int r : grantResults) {
                 if (r == PackageManager.PERMISSION_DENIED) {
                     LOG.d(TAG, "Permission Denied!");
@@ -82,10 +131,8 @@ public class Geolocation extends CordovaPlugin {
     }
 
     public boolean hasPermisssion() {
-        for(String p : permissions)
-        {
-            if(!PermissionHelper.hasPermission(this, p))
-            {
+        for (String p : permissions) {
+            if (!PermissionHelper.hasPermission(this, p)) {
                 return false;
             }
         }
@@ -96,23 +143,31 @@ public class Geolocation extends CordovaPlugin {
      * We override this so that we can access the permissions variable, which no longer exists in
      * the parent class, since we can't initialize it reliably in the constructor!
      */
-
-    public void requestPermissions(int requestCode)
-    {
+    public void requestPermissions(int requestCode) {
         PermissionHelper.requestPermissions(this, requestCode, permissions);
     }
 
-    /**
-     * 
-     * @param mContext
-     * @return
-     */
-    public boolean isGPSEnabled (Context mContext){
-        LocationManager locationManager = (LocationManager)
-                mContext.getSystemService(Context.LOCATION_SERVICE);
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    public boolean isGPSEnabled() {
+        Context context = this.cordova.getActivity().getApplicationContext();
+        final LocationManager manager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
+    public boolean isNetworkPositionEnabled() {
+        Context context = this.cordova.getActivity().getApplicationContext();
+        final LocationManager manager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 
-
+    private int checkSelfPermission(String accessFineLocation) {
+        return hasPermisssion() ? 0: 1;
+    }
 }

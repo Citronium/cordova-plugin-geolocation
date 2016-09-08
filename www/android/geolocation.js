@@ -1,3 +1,4 @@
+cordova.define("cordova-plugin-geolocation.geolocation", function(require, exports, module) {
 /*
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -29,12 +30,15 @@ var pluginToNativeWatchMap = {};
 
 module.exports = {
     getCurrentPosition: function(success, error, args) {
-        var win = function() {
-          var geo = cordova.require('cordova/modulemapper').getOriginalSymbol(window, 'navigator.geolocation');
-          geo.getCurrentPosition(success, error, args);
+        var win = function(data) {
+//          var geo = cordova.require('cordova/modulemapper').getOriginalSymbol(window, 'navigator.geolocation');
+//          geo.getCurrentPosition(success, error, args);
+            exec(success, error, "Geolocation", "getCurrentPosition", []);
+
         };
         var fail = function() {
             if (error) {
+                console.log(error);
                 error(new PositionError (PositionError.PERMISSION_DENIED, 'Illegal Access'));
             }
         };
@@ -69,3 +73,5 @@ module.exports = {
         exec(win, null, "Geolocation", "getPermission", []);
     }
 };
+
+});
