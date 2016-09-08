@@ -39,7 +39,15 @@ module.exports = {
 //                error(new PositionError (PositionError.PERMISSION_DENIED, 'Illegal Access'));
 //            }
 //        };
-        exec(success, error, "Geolocation", "getCurrentPosition", []);
+        exec(function(data){
+            var coords = JSON.parse(data);
+                success({
+                coords: {
+                latitude: coords.lat,
+                longitude: coords.lon
+                }
+            });
+        }, error, "Geolocation", "getCurrentPosition", []);
     },
 
     watchPosition: function(success, error, args) {
