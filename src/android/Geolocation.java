@@ -60,6 +60,9 @@ public class Geolocation extends CordovaPlugin {
         }else if (action.equals("getCurrentPosition")) {
             if (hasPermisssion()) {
                 if (isGPSEnabled() || isNetworkPositionEnabled()) {
+
+                    final LocationManager mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+
                     final LocationListener mLocationListener = new LocationListener() {
 
                         @Override
@@ -67,6 +70,10 @@ public class Geolocation extends CordovaPlugin {
                             LOG.d(TAG, "We are entering execute");
                             LocationResult locationResult = new LocationResult(location.getLatitude(), location.getLongitude());
                             PluginResult r = new PluginResult(PluginResult.Status.OK, "" + locationResult.toJson());
+
+                            mLocManager.removeUpdates(mLocationListener);
+                            mLocManager = null;
+
                             context.sendPluginResult(r);
                         }
 
@@ -87,7 +94,7 @@ public class Geolocation extends CordovaPlugin {
                     };
 
                     Context context = this.cordova.getActivity().getApplicationContext();
-                    final LocationManager mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+
                     if (
                             checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                                     && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
