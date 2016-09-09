@@ -21,6 +21,7 @@ package org.apache.cordova.geolocation;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -35,6 +36,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.List;
+
 public class Geolocation extends CordovaPlugin {
 
     String TAG = "GeolocationPlugin";
@@ -42,11 +45,18 @@ public class Geolocation extends CordovaPlugin {
 
     String[] permissions = {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
 
+    private Criteria criteria;
+    private String provider;
+
 
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         LOG.d(TAG, "We are entering execute");
         context = callbackContext;
+
+
+        criteria = new Criteria();
+        criteria.setAccuracy(Criteria.ACCURACY_FINE);
 
         int timeOutMinute = 0;
 
@@ -77,6 +87,8 @@ public class Geolocation extends CordovaPlugin {
                     Context geoContext = this.cordova.getActivity().getApplicationContext();
 
                     final LocationManager[] mLocationManager = {(LocationManager) geoContext.getSystemService(Context.LOCATION_SERVICE)};
+
+                    List<String> providers = mLocationManager[0].getProviders(criteria, true);
 
                     final LocationListener mLocationListener = new LocationListener() {
 
@@ -113,14 +125,29 @@ public class Geolocation extends CordovaPlugin {
 
 
 
+
+
                     if (
                             checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                                     && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         PermissionHelper.requestPermissions(this, 0, permissions);
                     }
 
-                    mLocationManager[0].requestLocationUpdates(LocationManager.GPS_PROVIDER, timeOutMinute,
-                            10, mLocationListener);
+                    provider = mLocationManager[0].getBestProvider(criteria, true);
+
+                    if (provider.equals(LocationManager.GPS_PROVIDER)) {
+                        mLocationManager[0].requestLocationUpdates(LocationManager.GPS_PROVIDER, 60,
+                                100, mLocationListener);
+                    } else if (provider.equals(LocationManager.NETWORK_PROVIDER)) {
+                        mLocationManager[0].requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60,
+                                100, mLocationListener);
+                    }  else if (provider.equals(LocationManager.PASSIVE_PROVIDER)) {
+                        mLocationManager[0].requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 60,
+                                100, mLocationListener);
+                    } else {
+                        mLocationManager[0].requestLocationUpdates(LocationManager.GPS_PROVIDER, 60,
+                                100, mLocationListener);
+                    }
 
                 } else {
                     PluginResult r = new PluginResult(PluginResult.Status.CLASS_NOT_FOUND_EXCEPTION, 2);
@@ -185,7 +212,7 @@ public class Geolocation extends CordovaPlugin {
     public boolean isNetworkPositionEnabled() {
         Context context = this.cordova.getActivity().getApplicationContext();
         final LocationManager manager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+        if (!manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
             return false;
         } else {
             return true;
