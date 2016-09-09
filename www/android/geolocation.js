@@ -49,9 +49,14 @@ module.exports = {
                 }
             });
         }, function(errorData) {
-            if (errorData === 2) {
-                error(new PositionError (PositionError.POSITION_UNAVAILABLE, 'POSITION_UNAVAILABLE'));
+
+            switch (errorData) {
+                case 1:
+                    error(new PositionError (PositionError.PERMISSION_DENIED, 'PERMISSION_DENIED'));
+                case 2:
+                    error(new PositionError (PositionError.POSITION_UNAVAILABLE, 'POSITION_UNAVAILABLE'));
             }
+
         }, "Geolocation", "getCurrentPosition", [args]);
     },
 
