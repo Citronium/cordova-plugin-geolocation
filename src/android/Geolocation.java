@@ -56,7 +56,7 @@ public class Geolocation extends CordovaPlugin {
 
 
         criteria = new Criteria();
-        criteria.setAccuracy(Criteria.ACCURACY_FINE);
+//        criteria.setAccuracy(Criteria.ACCURACY_FINE);
 
         int timeOutMinute = 0;
 
@@ -123,10 +123,6 @@ public class Geolocation extends CordovaPlugin {
                         }
                     };
 
-
-
-
-
                     if (
                             checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                                     && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -135,18 +131,23 @@ public class Geolocation extends CordovaPlugin {
 
                     provider = mLocationManager[0].getBestProvider(criteria, true);
 
-                    if (provider.equals(LocationManager.GPS_PROVIDER)) {
-                        mLocationManager[0].requestLocationUpdates(LocationManager.GPS_PROVIDER, 60,
-                                100, mLocationListener);
-                    } else if (provider.equals(LocationManager.NETWORK_PROVIDER)) {
-                        mLocationManager[0].requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60,
-                                100, mLocationListener);
-                    }  else if (provider.equals(LocationManager.PASSIVE_PROVIDER)) {
-                        mLocationManager[0].requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 60,
-                                100, mLocationListener);
+                    if (provider != null) {
+                        if (provider.equals(LocationManager.GPS_PROVIDER)) {
+                            mLocationManager[0].requestLocationUpdates(LocationManager.GPS_PROVIDER, 60,
+                                    100, mLocationListener);
+                        } else if (provider.equals(LocationManager.NETWORK_PROVIDER)) {
+                            mLocationManager[0].requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60,
+                                    100, mLocationListener);
+                        }  else if (provider.equals(LocationManager.PASSIVE_PROVIDER)) {
+                            mLocationManager[0].requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 60,
+                                    100, mLocationListener);
+                        } else {
+                            mLocationManager[0].requestLocationUpdates(LocationManager.GPS_PROVIDER, 60,
+                                    100, mLocationListener);
+                        }
                     } else {
-                        mLocationManager[0].requestLocationUpdates(LocationManager.GPS_PROVIDER, 60,
-                                100, mLocationListener);
+                        PluginResult r = new PluginResult(PluginResult.Status.CLASS_NOT_FOUND_EXCEPTION, 1);
+                        context.sendPluginResult(r);
                     }
 
                 } else {
