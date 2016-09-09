@@ -53,8 +53,15 @@ module.exports = {
             switch (errorData) {
                 case 1:
                     error(new PositionError (PositionError.PERMISSION_DENIED, 'PERMISSION_DENIED'));
+                    break;
                 case 2:
                     error(new PositionError (PositionError.POSITION_UNAVAILABLE, 'POSITION_UNAVAILABLE'));
+                    break;
+                case 3:
+                    error(new PositionError (PositionError.TIMEOUT, 'TIMEOUT'));
+                    break;
+                default:
+                    error(new PositionError (0, 'OK'));
             }
 
         }, "Geolocation", "getCurrentPosition", [args]);
