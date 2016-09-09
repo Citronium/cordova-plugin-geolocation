@@ -152,6 +152,7 @@ public class Geolocation extends CordovaPlugin {
                                     return;
                                 }
                                 mLocationManager[0].removeUpdates(mLocationListener);
+                                mLocationManager[0] = null;
                                 PluginResult r = new PluginResult(PluginResult.Status.CLASS_NOT_FOUND_EXCEPTION, 3);
                                 context.sendPluginResult(r);
                             }
