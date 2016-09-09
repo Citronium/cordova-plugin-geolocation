@@ -148,11 +148,13 @@ public class Geolocation extends CordovaPlugin {
                     } else {
                         PluginResult r = new PluginResult(PluginResult.Status.CLASS_NOT_FOUND_EXCEPTION, 1);
                         context.sendPluginResult(r);
+                        return false;
                     }
 
                 } else {
                     PluginResult r = new PluginResult(PluginResult.Status.CLASS_NOT_FOUND_EXCEPTION, 2);
                     context.sendPluginResult(r);
+                    return false;
                 }
 
             } else {
