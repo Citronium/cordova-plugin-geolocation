@@ -39,6 +39,7 @@ module.exports = {
 //                error(new PositionError (PositionError.PERMISSION_DENIED, 'Illegal Access'));
 //            }
 //        };
+
         exec(function(data){
             var coords = JSON.parse(data);
                 success({
@@ -47,17 +48,11 @@ module.exports = {
                 longitude: coords.lon
                 }
             });
-        }, function(error) {
-                       if (error) {
-                           console.log(error);
-
-                           if (error === 2) {
-                             error(new PositionError (2, 'GPS disabled'));
-                           }
-
-                           error(new PositionError (PositionError.PERMISSION_DENIED, 'Illegal Access'));
-                       },
-                       "Geolocation", "getCurrentPosition", []);
+        }, function(errorData) {
+            if (errorData === 2) {
+                error(new PositionError (PositionError.POSITION_UNAVAILABLE, 'POSITION_UNAVAILABLE'));
+            }
+        }, "Geolocation", "getCurrentPosition", [args]);
     },
 
     watchPosition: function(success, error, args) {

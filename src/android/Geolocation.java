@@ -33,6 +33,7 @@ import org.apache.cordova.PermissionHelper;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 public class Geolocation extends CordovaPlugin {
 
@@ -42,9 +43,24 @@ public class Geolocation extends CordovaPlugin {
     String[] permissions = {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
 
 
+    @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         LOG.d(TAG, "We are entering execute");
         context = callbackContext;
+
+        int timeOutMinute = 0;
+
+        if (!args.isNull(0)) {
+
+            double timeMilis = ((JSONObject) args.get(0)).getDouble("timeout");
+
+            if (timeMilis > 0) {
+                timeOutMinute = (int) ((timeMilis / 1000) / 60);
+            }
+        }
+
+        timeOutMinute = timeOutMinute <= 0 ? 1 : timeOutMinute;
+
         if (action.equals("getPermission")) {
             if (hasPermisssion()) {
                 PluginResult r = new PluginResult(PluginResult.Status.OK);
@@ -103,7 +119,7 @@ public class Geolocation extends CordovaPlugin {
                         PermissionHelper.requestPermissions(this, 0, permissions);
                     }
 
-                    mLocationManager[0].requestLocationUpdates(LocationManager.GPS_PROVIDER, 60,
+                    mLocationManager[0].requestLocationUpdates(LocationManager.GPS_PROVIDER, timeOutMinute,
                             10, mLocationListener);
 
                 } else {
