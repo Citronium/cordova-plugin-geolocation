@@ -59,8 +59,6 @@ public class Geolocation extends CordovaPlugin {
         criteria = new Criteria();
 //        criteria.setAccuracy(Criteria.ACCURACY_FINE);
 
-        int timeOutMinute = 0;
-
         long timeMilis = 0;
 
         if (!args.isNull(0)) {
@@ -101,7 +99,7 @@ public class Geolocation extends CordovaPlugin {
                         @Override
                         public void onLocationChanged(Location location) {
                             LOG.d(TAG, "We are entering execute");
-                            LocationResult locationResult = new LocationResult(location.getLatitude(), location.getLongitude());
+                            org.apache.cordova.geolocation.LocationResult locationResult = new org.apache.cordova.geolocation.LocationResult(location.getLatitude(), location.getLongitude());
                             PluginResult r = new PluginResult(PluginResult.Status.OK, "" + locationResult.toJson());
 
                             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
@@ -152,7 +150,7 @@ public class Geolocation extends CordovaPlugin {
                                     return;
                                 }
                                 mLocationManager[0].removeUpdates(mLocationListener);
-                                mLocationManager[0] = null;
+//                                mLocationManager[0] = null;
                                 PluginResult r = new PluginResult(PluginResult.Status.CLASS_NOT_FOUND_EXCEPTION, 3);
                                 context.sendPluginResult(r);
                             }
