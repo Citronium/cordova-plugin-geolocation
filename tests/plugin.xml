@@ -17,7 +17,7 @@
   under the License.
 -->
 
-<plugin id="cordova-plugin-geolocation-tests" version="2.2.1-dev"
+<plugin id="cordova-plugin-geolocation-tests" version="2.2.2"
     xmlns="http://apache.org/cordova/ns/plugins/1.0">
     <name>Cordova Geolocation Plugin Tests</name>
     <license>Apache 2.0</license>
