@@ -19,7 +19,7 @@
 
 <plugin xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:rim="http://www.blackberry.com/ns/widgets"
-    id="cordova-plugin-geolocation" version="2.2.2"
+    id="cordova-plugin-geolocation" version="2.3.3"
     xmlns="http://apache.org/cordova/ns/plugins/1.0">
 
     <name>Geolocation</name>
